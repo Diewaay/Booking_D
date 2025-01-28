@@ -14,12 +14,9 @@ const SpecialityMenu = () => {
           <Link
             onScroll={() => scrollTo(0, 0)}
             to={`/doctors/${item.speciality}`}
-            key={item.id}
+            key={item.speciality} // Use item.speciality as the key
           >
-            <div
-              key={item.speciality}
-              className="flex flex-col items-center bg-white shadow-md rounded-lg p-4"
-            >
+            <div className="flex flex-col items-center bg-white shadow-md rounded-lg p-4">
               <img
                 src={item.image}
                 alt={item.speciality}

@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { doctors } from "../assets/assets_frontend/assets";
+import { AppContext } from "../context/AppContext";
 
 const TopDoctors = () => {
   const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
+  const { doctors } = useContext(AppContext); // Move this line up to access doctors first
   const displayedDoctors = showMore ? doctors : doctors.slice(0, 6);
 
   const handleDoctorClick = (doctorId, doctorName) => {
-    // Convert doctor name to URL-friendly format
     const urlName = doctorName.toLowerCase().replace(/\s+/g, "-");
     navigate(`/doctors/${urlName}`, { state: { doctorId } });
   };
