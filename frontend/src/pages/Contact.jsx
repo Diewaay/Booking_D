@@ -54,7 +54,7 @@ const Contact = () => {
                     <p className="text-gray-600">
                       123 Medical Center Drive
                       <br />
-                      Jakarta, Indonesia 12345
+                      Indonesia 12345
                     </p>
                   </div>
 
