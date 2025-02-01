@@ -56,7 +56,6 @@ const Doctors = () => {
             <div className="p-6">
               <div className="flex items-start space-x-4">
                 {/* Doctor Avatar */}
-                {/* Doctor Avatar */}
                 <div className="bg-gradient-to-r from-blue-200 to-blue-600 w-16 h-16 rounded-full overflow-hidden">
                   <img
                     src={doctor.image}
