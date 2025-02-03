@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary"; // Corrected import statement
+import { v2 as cloudinary } from "cloudinary";
 
 const connectCloudinary = async () => {
   cloudinary.config({
