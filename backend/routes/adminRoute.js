@@ -14,13 +14,6 @@ adminRouter.post(
   upload.single("image"),
   addDoctor
 );
-adminRouter.post(
-  "/login",
-  (req, res, next) => {
-    console.log("Request received in route");
-    next();
-  },
-  loginAdmin
-);
+adminRouter.post("/login", loginAdmin);
 
 export default adminRouter;
