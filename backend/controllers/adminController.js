@@ -27,6 +27,18 @@ const addDoctor = async (req, res) => {
     } = req.body;
     const imageFile = req.file;
 
+    console.log("Data received:", {
+      name,
+      email,
+      password,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address,
+    });
+
     // Check all form data
     if (
       !name ||
@@ -39,6 +51,7 @@ const addDoctor = async (req, res) => {
       !fees ||
       !address
     ) {
+      console.log("Incomplete form data:", req.body); // Tambahkan log ini
       return res
         .status(400)
         .json({ success: false, message: "Please fill in all fields" });
@@ -46,11 +59,13 @@ const addDoctor = async (req, res) => {
 
     // Check if email is valid
     if (!validator.isEmail(email)) {
+      console.log("Invalid email:", email); // Tambahkan log ini
       return res.status(400).json({ success: false, message: "Invalid email" });
     }
 
     // Check if password is valid
     if (password.length < 8) {
+      console.log("Password too short:", password); // Tambahkan log ini
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters long",
@@ -71,10 +86,13 @@ const addDoctor = async (req, res) => {
     try {
       parsedAddress = JSON.parse(address); // Parse string JSON into object
     } catch (error) {
+      console.log("Error parsing address:", error.message);
       return res
         .status(400)
         .json({ success: false, message: "Invalid address format" });
     }
+
+    console.log("Parsed address:", parsedAddress);
 
     const doctorData = {
       name,

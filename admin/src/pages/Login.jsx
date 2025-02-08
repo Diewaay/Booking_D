@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import axios from "axios";
 import { AdminContext } from "../context/AdminContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [state, setState] = useState("Admin");
@@ -12,6 +13,8 @@ const Login = () => {
     event.preventDefault();
     try {
       console.log("backendUrl:", backendUrl);
+      // Handle Admin Login
+      localStorage.removeItem("aToken");
       if (state === "Admin") {
         const { data } = await axios.post(`${backendUrl}/api/admin/login`, {
           email,
@@ -21,13 +24,24 @@ const Login = () => {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
         } else {
-          alert("data.message");
+          toast.error(data.message);
         }
       } else {
         // Handle Doctor login
+        const { data } = await axios.post(`${backendUrl}/api/doctor/login`, {
+          email,
+          password,
+        });
+        if (data.success) {
+          localStorage.setItem("aToken", data.token);
+          setAToken(data.token);
+        } else {
+          toast.error(data.message);
+        }
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
