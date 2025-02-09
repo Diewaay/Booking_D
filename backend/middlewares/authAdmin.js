@@ -10,9 +10,9 @@ const authAdmin = async (req, res, next) => {
         .json({ success: false, msg: "No token, authorization denied" });
     }
     const token = authHeader.split(" ")[1];
-    console.log("Token received:", token); // Tambahkan log ini
+    console.log("Token received:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Tambahkan log ini
+    console.log("Decoded token:", decoded);
 
     if (decoded.email !== process.env.ADMIN_EMAIL) {
       console.log("Invalid token email:", decoded.email);
@@ -20,7 +20,6 @@ const authAdmin = async (req, res, next) => {
     }
 
     req.user = decoded;
-
     next();
   } catch (error) {
     console.error("Error in token verification:", error.message);

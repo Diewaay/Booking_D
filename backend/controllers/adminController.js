@@ -39,7 +39,6 @@ const addDoctor = async (req, res) => {
       address,
     });
 
-    // Check all form data
     if (
       !name ||
       !email ||
@@ -51,32 +50,28 @@ const addDoctor = async (req, res) => {
       !fees ||
       !address
     ) {
-      console.log("Incomplete form data:", req.body); // Tambahkan log ini
+      console.log("Incomplete form data:", req.body);
       return res
         .status(400)
         .json({ success: false, message: "Please fill in all fields" });
     }
 
-    // Check if email is valid
     if (!validator.isEmail(email)) {
-      console.log("Invalid email:", email); // Tambahkan log ini
+      console.log("Invalid email:", email);
       return res.status(400).json({ success: false, message: "Invalid email" });
     }
 
-    // Check if password is valid
     if (password.length < 8) {
-      console.log("Password too short:", password); // Tambahkan log ini
+      console.log("Password too short:", password);
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters long",
       });
     }
 
-    // Hashing doctor password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Upload image to Cloudinary
     const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
       resource_type: "image",
     });
@@ -84,7 +79,7 @@ const addDoctor = async (req, res) => {
 
     let parsedAddress;
     try {
-      parsedAddress = JSON.parse(address); // Parse string JSON into object
+      parsedAddress = JSON.parse(address);
     } catch (error) {
       console.log("Error parsing address:", error.message);
       return res
@@ -114,14 +109,13 @@ const addDoctor = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Doctor created successfully" });
   } catch (error) {
-    console.error("Error saving doctor:", error.message); // Log the specific error message
+    console.error("Error saving doctor:", error.message);
     return res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
   }
 };
 
-// API admin login
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -132,14 +126,25 @@ const loginAdmin = async (req, res) => {
       const token = jwt.sign({ email }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
+      console.log("Generated token:", token);
       res.json({ success: true, token });
     } else {
       return res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    console.error("Error logging in admin:", error.message); // Log the specific error message
+    console.error("Error logging in admin:", error.message);
     res.json({ success: false, message: error.message });
   }
 };
 
-export { addDoctor, loginAdmin };
+const getDoctorsList = async (req, res) => {
+  try {
+    console.log("Request received in /all-doctors");
+    const doctors = await doctorModel.find({}).select("-password");
+    res.json({ success: true, doctors });
+  } catch (error) {
+    console.error("Error getting doctors list:", error.message);
+  }
+};
+
+export { addDoctor, loginAdmin, getDoctorsList };
