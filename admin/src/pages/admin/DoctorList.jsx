@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { Search, Plus, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const DoctorList = () => {
   const { doctors, aToken, getAllDoctors } = useContext(AdminContext);
@@ -26,10 +27,12 @@ const DoctorList = () => {
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Manage Doctors</h2>
-          <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="w-5 h-5 mr-2" />
-            Add New Doctor
-          </button>
+          <Link to="/add-doctor">
+            <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <Plus className="w-5 h-5 mr-2" />
+              Add New Doctor
+            </button>
+          </Link>
         </div>
 
         <div className="relative mb-6">
@@ -68,7 +71,7 @@ const DoctorList = () => {
                     Email
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    Phone
+                    Fees
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600">
                     Actions
@@ -77,7 +80,7 @@ const DoctorList = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredDoctors?.map((doctor) => (
-                  <tr key={doctor.id} className="hover:bg-gray-50">
+                  <tr key={doctor._id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <img
                         src={doctor.image}
@@ -95,7 +98,7 @@ const DoctorList = () => {
                       {doctor.experience} years
                     </td>
                     <td className="px-4 py-3 text-gray-600">{doctor.email}</td>
-                    <td className="px-4 py-3 text-gray-600">{doctor.phone}</td>
+                    <td className="px-4 py-3 text-gray-600">{doctor.fees}</td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <button className="p-1 hover:bg-gray-100 rounded">
