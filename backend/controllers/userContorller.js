@@ -83,4 +83,64 @@ const userLogin = async (req, res) => {
   }
 };
 
-export { registerUser, userLogin };
+// API get user profile data
+const getUserProfile = async (req, res) => {
+  try {
+    // Ambil userId yang telah ditambahkan oleh middleware authUser
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "User ID is required" });
+    }
+
+    const userProfile = await userModel.findById(userId);
+
+    if (!userProfile) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    res.status(200).json({ success: true, data: userProfile });
+  } catch (error) {
+    console.error("Error retrieving user profile:", error.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+// API update user profile data
+const updateUserProfile = async (req, res) => {
+  try {
+    const { userId, name, email, phone, address, gender } = req.body;
+    const imageFile = req.file ? req.file.path : null;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "User ID is required" });
+    }
+
+    const userProfile = await userModel.findById(userId);
+
+    if (!userProfile) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    // Update profil pengguna
+    if (name) userProfile.name = name;
+    if (email) userProfile.email = email;
+    if (phone) userProfile.phone = phone;
+    if (address) userProfile.address = address;
+    if (gender) userProfile.gender = gender;
+    if (imageFile) userProfile.imageFile = imageFile;
+
+    const updatedUserProfile = await userProfile.save();
+
+    res.status(200).json({ success: true, data: updatedUserProfile });
+  } catch (error) {
+    console.error("Error updating user profile:", error.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+};
+
+export { registerUser, userLogin, getUserProfile, updateUserProfile };
