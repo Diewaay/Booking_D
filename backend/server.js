@@ -12,6 +12,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 connectDB();
 connectCloudinary();
+
 // Tambahkan middleware logging di sini
 app.use((req, res, next) => {
   console.log("Headers received:", req.headers);

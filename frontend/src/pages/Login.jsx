@@ -51,7 +51,7 @@ const UserAuth = () => {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log("Login Error:", error.response.data); // Add this line to log the error response data
       toast.error("Something went wrong. Please try again.");
     }
   };

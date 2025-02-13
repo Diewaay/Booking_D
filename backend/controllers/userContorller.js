@@ -2,6 +2,7 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import { v2 as cloudinary } from "cloudinary";
 
 // Register User
 const registerUser = async (req, res) => {
@@ -112,7 +113,6 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
   try {
     const { userId, name, email, phone, address, gender } = req.body;
-    const imageFile = req.file ? req.file.path : null;
 
     if (!userId) {
       return res
@@ -126,13 +126,22 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
+    // Handle image upload to Cloudinary
+    let imageUrl;
+    if (req.file) {
+      const imageUpload = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "image",
+      });
+      imageUrl = imageUpload.secure_url;
+    }
+
     // Update profil pengguna
     if (name) userProfile.name = name;
     if (email) userProfile.email = email;
     if (phone) userProfile.phone = phone;
     if (address) userProfile.address = address;
     if (gender) userProfile.gender = gender;
-    if (imageFile) userProfile.imageFile = imageFile;
+    if (imageUrl) userProfile.image = imageUrl;
 
     const updatedUserProfile = await userProfile.save();
 

@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { User, Menu, X } from "lucide-react";
+import { AppContext } from "../context/AppContext";
 
 const Navbar = () => {
-  const [token, setToken] = useState(true);
+  const { token, userData, handleLogout } = useContext(AppContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const username = "User";
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const navigate = useNavigate();
@@ -31,39 +32,25 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const handleLogout = () => {
-    setToken(false);
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
   return (
     <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Mobile Menu Button - Moved to left */}
+          {/* Mobile Menu Button */}
           <div className="flex md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-blue-600 focus:outline-none"
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
 
-          {/* Logo - Moved to center on mobile */}
+          {/* Logo */}
           <div className="flex-1 flex justify-center md:justify-start">
             <Link
               to="/"
@@ -111,7 +98,10 @@ const Navbar = () => {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 focus:outline-none"
                 >
-                  <span className="text-sm font-medium">{username}</span>
+                  <User className="h-5 w-5" />
+                  <span className="text-sm font-medium">
+                    {userData.name || "User"}
+                  </span>
                   <svg
                     className={`h-5 w-5 transition-transform duration-200 ${
                       dropdownOpen ? "transform rotate-180" : ""
@@ -132,7 +122,7 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/70 backdrop-blur-md ring-1 ring-blue-400 ring-opacity-5">
                     <div className="py-1">
                       <Link
-                        to="/profile"
+                        to="/my-profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                         onClick={() => setDropdownOpen(false)}
                       >
