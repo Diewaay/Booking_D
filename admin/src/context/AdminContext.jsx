@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState, createContext, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
@@ -11,6 +11,7 @@ const AdminContextProvider = (props) => {
   );
   const [doctors, setDoctors] = useState([]);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [appointments, setAppointments] = useState([]); // Added appointments state
 
   const getAllDoctors = async () => {
     try {
@@ -20,6 +21,25 @@ const AdminContextProvider = (props) => {
       if (data.success) {
         setDoctors(data.doctors);
         console.log(data.doctors);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const getAllAppointments = async () => {
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/admin/all-appointments`,
+        {
+          headers: { Authorization: `Bearer ${aToken}` },
+        }
+      );
+      if (data.success) {
+        setAppointments(data.appointments);
+        console.log(data.appointments);
       } else {
         toast.error(data.message);
       }
@@ -38,6 +58,9 @@ const AdminContextProvider = (props) => {
     backendUrl,
     doctors,
     getAllDoctors,
+    appointments,
+    getAllAppointments,
+    setAppointments,
   };
 
   return (

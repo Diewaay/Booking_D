@@ -4,7 +4,7 @@ import { User, Menu, X } from "lucide-react";
 import { AppContext } from "../context/AppContext";
 
 const Navbar = () => {
-  const { token, userData, handleLogout } = useContext(AppContext);
+  const { token, userData, handleLogout } = useContext(AppContext) || {};
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -31,6 +31,13 @@ const Navbar = () => {
   const handleCreateAccount = () => {
     navigate("/login");
   };
+
+  useEffect(() => {
+    // Auto logout if token is invalid or expired
+    if (!token) {
+      handleLogout();
+    }
+  }, [token, handleLogout]);
 
   return (
     <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
@@ -100,7 +107,7 @@ const Navbar = () => {
                 >
                   <User className="h-5 w-5" />
                   <span className="text-sm font-medium">
-                    {userData.name || "User"}
+                    {userData?.name || "User"}
                   </span>
                   <svg
                     className={`h-5 w-5 transition-transform duration-200 ${
@@ -129,7 +136,7 @@ const Navbar = () => {
                         My Profile
                       </Link>
                       <Link
-                        to="/appointments"
+                        to="/my-appointments"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                         onClick={() => setDropdownOpen(false)}
                       >

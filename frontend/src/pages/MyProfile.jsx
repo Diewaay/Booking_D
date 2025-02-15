@@ -23,7 +23,6 @@ const MyProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     address: "",
     gender: "",
@@ -38,7 +37,6 @@ const MyProfile = () => {
     if (userData) {
       setFormData({
         name: userData.name || "",
-        email: userData.email || "",
         phone: userData.phone || "",
         address:
           typeof userData.address === "object"
@@ -151,19 +149,6 @@ const MyProfile = () => {
                     type="text"
                     name="name"
                     value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />

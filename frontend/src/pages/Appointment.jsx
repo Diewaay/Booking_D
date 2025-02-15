@@ -1,11 +1,15 @@
+/* eslint-disable no-unused-vars */
 import { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol } = useContext(AppContext);
+  const { doctors, currencySymbol, token, userData, backendUrl } =
+    useContext(AppContext);
   const [docInfo, setDocInfo] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -20,6 +24,44 @@ const Appointment = () => {
     Friday: ["09:00", "12:00"],
     Saturday: [],
     Sunday: [],
+  };
+
+  const bookAppointment = async () => {
+    if (!token) {
+      toast.warning("Login to book appointment");
+      return navigate("/login");
+    }
+
+    if (selectedDate !== null && selectedTime) {
+      try {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const appointmentData = {
+          userId: userData._id,
+          docId,
+          slotDate: new Date(Date.now() + selectedDate * 86400000),
+          slotTime: selectedTime,
+          userData,
+          docData: docInfo,
+          amount: docInfo.fees,
+          date: new Date(),
+        };
+        const { data } = await axios.post(
+          `${backendUrl}/api/user/book-appointment`,
+          appointmentData,
+          config
+        );
+        if (data.success) {
+          toast.success("Appointment booked successfully!");
+          navigate("/my-appointments");
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } else {
+      toast.error("Please select a date and time.");
+    }
   };
 
   // Filter related doctors (same specialty, exclude current doctor)
@@ -157,17 +199,7 @@ const Appointment = () => {
           {/* Book Button */}
           <button
             className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-lg transform hover:scale-105 active:scale-95"
-            onClick={() => {
-              if (selectedDate !== null && selectedTime) {
-                alert(
-                  `Appointment booked for ${new Date(
-                    Date.now() + selectedDate * 86400000
-                  ).toDateString()} at ${selectedTime}`
-                );
-              } else {
-                alert("Please select a date and time.");
-              }
-            }}
+            onClick={bookAppointment}
           >
             Book Appointment
           </button>

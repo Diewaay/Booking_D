@@ -49,7 +49,7 @@ const Doctors = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDoctors.map((doctor) => (
           <div
-            key={doctor.id}
+            key={doctor._id}
             className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer overflow-hidden"
             onClick={() => navigate(`/appointment/${doctor._id}`)}
           >

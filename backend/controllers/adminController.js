@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
 
 const addDoctor = async (req, res) => {
   console.log("Incoming request body:", req.body);
@@ -147,4 +148,77 @@ const getDoctorsList = async (req, res) => {
   }
 };
 
-export { addDoctor, loginAdmin, getDoctorsList };
+// Get all appointments (Admin)
+const getAllAppointments = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({});
+    res.status(200).json({ success: true, appointments });
+  } catch (error) {
+    console.error("Error getting all appointments:", error.message);
+    console.error(error.stack); // Log the full error stack for more details
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Create a doctor
+const createDoctor = async (req, res) => {
+  try {
+    const doctor = new doctorModel(req.body);
+    const savedDoctor = await doctor.save();
+    res.status(201).json({ success: true, doctor: savedDoctor });
+  } catch (error) {
+    console.error("Error creating doctor:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update a doctor
+const updateDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!updatedDoctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+    res.status(200).json({ success: true, doctor: updatedDoctor });
+  } catch (error) {
+    console.error("Error updating doctor:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a doctor
+const deleteDoctor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedDoctor = await doctorModel.findByIdAndDelete(id);
+    if (!deletedDoctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "Doctor deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting doctor:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get all doctors
+const getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find();
+    res.status(200).json({ success: true, doctors });
+  } catch (error) {
+    console.error("Error getting all doctors:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { addDoctor, loginAdmin, getDoctorsList, getAllAppointments };

@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addDoctor,
+  getAllAppointments,
   getDoctorsList,
   loginAdmin,
 } from "../controllers/adminController.js";
@@ -20,5 +21,8 @@ adminRouter.post(
 );
 adminRouter.post("/login", loginAdmin);
 adminRouter.get("/all-doctors", authAdmin, getDoctorsList);
+
+// Route for fetching all appointments
+adminRouter.get("/all-appointments", authAdmin, getAllAppointments);
 
 export default adminRouter;

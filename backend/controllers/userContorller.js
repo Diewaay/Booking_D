@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
+import doctorModel from "../models/doctorModel.js";
+import appointmentModel from "../models/appointmentModel.js";
 
 // Register User
 const registerUser = async (req, res) => {
@@ -152,4 +154,140 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-export { registerUser, userLogin, getUserProfile, updateUserProfile };
+// API to book appointment
+const bookAppointment = async (req, res) => {
+  try {
+    const { userId, docId, slotDate, slotTime } = req.body;
+
+    if (!userId || !docId || !slotDate || !slotTime) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "All fields are required" });
+    }
+
+    // Mendapatkan data dokter
+    const docData = await doctorModel.findById(docId).select("-password");
+    if (!docData) {
+      return res.status(404).json({ success: false, msg: "Doctor not found" });
+    }
+
+    if (!docData.available) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Doctor is not available" });
+    }
+
+    // Pastikan slots_booked adalah array
+    let slots_booked = Array.isArray(docData.slots_booked)
+      ? docData.slots_booked
+      : [];
+
+    // Mengecek apakah slot sudah dipesan
+    if (slots_booked.includes(`${slotDate}-${slotTime}`)) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Slot is already booked" });
+    } else {
+      slots_booked.push(`${slotDate}-${slotTime}`);
+    }
+
+    // Mendapatkan data pengguna
+    const userData = await userModel.findById(userId).select("-password");
+    if (!userData) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    // Menghapus slots_booked dari docData sebelum menyimpannya dalam janji temu
+    const docDataCopy = { ...docData._doc };
+    delete docDataCopy.slots_booked;
+
+    // Membuat data janji temu
+    const appointmentData = {
+      userId,
+      docId,
+      slotDate,
+      slotTime,
+      userData,
+      docData: docDataCopy,
+      amount: docData.fees,
+      date: Date.now(),
+    };
+
+    // Menyimpan janji temu baru
+    const newAppointment = new appointmentModel(appointmentData);
+    await newAppointment.save();
+
+    // Menyimpan data slot yang telah dipesan
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
+    res.status(200).json({ success: true, data: newAppointment });
+  } catch (error) {
+    console.error("Error booking appointment:", error.message); // Log error detail
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getUserAppointments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const appointments = await appointmentModel.find({ userId });
+    res.status(200).json({ success: true, appointments });
+  } catch (error) {
+    console.error("Error getting appointments:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update an appointment
+const updateAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const updatedAppointment = await appointmentModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+    if (!updatedAppointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+    res.status(200).json({ success: true, data: updatedAppointment });
+  } catch (error) {
+    console.error("Error updating appointment:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Cancel an appointment
+const cancelAppointment = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const cancelledAppointment = await appointmentModel.findByIdAndUpdate(
+      _id,
+      { cancelled: true },
+      { new: true }
+    );
+    if (!cancelledAppointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+    res.status(200).json({ success: true, data: cancelledAppointment });
+  } catch (error) {
+    console.error("Error cancelling appointment:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export {
+  registerUser,
+  userLogin,
+  getUserProfile,
+  updateUserProfile,
+  bookAppointment,
+  getUserAppointments,
+  updateAppointment,
+  cancelAppointment,
+};
